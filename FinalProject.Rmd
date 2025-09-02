@@ -1,0 +1,114 @@
+---
+title: "CSC 495 Final"
+author: "Landon Armstrong"
+date: "12/15/2021"
+output: slidy_presentation
+---
+
+## Setup
+
+Load the required packages and data.
+
+```{r}
+library(tidyverse)
+library(raster)
+library(rgdal) 
+library(RColorBrewer) 
+library(rasterVis)
+library(ggplot2)      
+library(colorspace)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(sf)
+library(tmap)
+library(OpenStreetMap)
+library(dplyr)
+
+library(tmaptools)
+
+```
+
+## Thurston Parks
+
+```{r}
+
+parks=st_read("C:/Users/cobra/OneDrive/Documents/SMU Junior/CSC495 Harold/Thurston_Parks.geojson")
+#is.na(parks) = 0
+#tm_shape(parks) + tm_raster(style = "cat")
+tm_shape(parks) + tm_polygons()
+```
+
+
+```{r}
+Thurston = st_read("C:/Users/cobra/OneDrive/Documents/SMU Junior/CSC495 Harold/Thurston_County_Border.kml")
+wetlands = st_read("C:/Users/cobra/OneDrive/Documents/SMU Junior/CSC495 Harold/Thurston_Wetlands.geojson")
+```
+## Reading Wetlands
+
+```{r}
+tmap_options(check.and.fix = TRUE)
+tm_shape(wetlands) + tm_polygons()
+
+```
+
+# reading Thurston County with the parks
+
+```{r}
+ths_bb = st_bbox(parks)
+osm_map = read_osm(ths_bb)
+tm_shape(osm_map) +
+  tm_rgb() +
+  tm_shape(parks) + 
+  tm_polygons()
+```
+
+# reading Thurston County with the Wetlands
+
+```{r}
+ths_bb = st_bbox(wetlands)
+osm_map = read_osm(ths_bb)
+tm_shape(osm_map) +
+  tm_rgb() +
+  tm_shape(wetlands) + 
+  tm_polygons()
+```
+
+# Thurston County Wetlands and Parks
+
+```{r}
+Thurston = st_transform(Thurston, st_crs(parks))
+
+Thurston_bb = st_bbox(Thurston)
+Thurston_map = read_osm(Thurston_bb)
+
+
+
+
+```
+
+
+```{r}
+tm_shape(Thurston_map) +
+  tm_rgb() +
+tm_shape(Thurston) +
+  tm_borders(lwd = 2, col="black") +
+
+  
+
+tm_shape(wetlands) +
+    tm_polygons(col="grey", lwd=0.1) +
+    tm_lines(col="green", lwd=0.1) +
+  
+  
+tm_shape(parks) +
+    tm_polygons(col="red", lwd=2) +
+
+  
+  tm_layout(legend.outside = TRUE, bg.color = "green",
+            legend.outside.position = c("right", "top"),
+            main.title = "Thurston Parks") +
+  tm_compass(type = "8star", size = 2.5, position = c("right" , "top")) +
+  
+  tm_layout(legend.outside = T)
+```
